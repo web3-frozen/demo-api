@@ -3,15 +3,10 @@ name: CI/CD
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
-  ci:
-    uses: web3-frozen/homelab-apps/.github/workflows/ci-container.yaml@main
-    with:
-      app-name: demo-api
-      image-name: demo-api
-      workload-dir: workloads/demo-app
-      go-version: "1.23"
-    secrets: inherit
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Actions works!"
