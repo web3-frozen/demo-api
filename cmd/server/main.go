@@ -74,7 +74,7 @@ func main() {
 
 	r.Get("/healthz", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ok"}`))
+		_, _ = w.Write([]byte(`{"status":"ok"}`))
 	})
 	r.Get("/readyz", func(w http.ResponseWriter, r *http.Request) {
 		if err := pg.Ping(r.Context()); err != nil {
@@ -82,7 +82,7 @@ func main() {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ready"}`))
+		_, _ = w.Write([]byte(`{"status":"ready"}`))
 	})
 	r.Mount("/api/tasks", taskHandler.Routes())
 
@@ -110,7 +110,7 @@ func main() {
 	logger.Info("shutting down gracefully")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	srv.Shutdown(ctx)
+	_ = srv.Shutdown(ctx)
 }
 
 func envOr(key, fallback string) string {
