@@ -33,3 +33,5 @@ Production-ready Go REST API for the Task Manager demo.
 | `KAFKA_BROKERS` | No | Kafka broker addresses |
 | `KAFKA_TOPIC` | No | Kafka topic (default: `task-events`) |
 | `PORT` | No | Server port (default: `8080`) |
+
+<!-- ci canary: verify reusable workflow after action major bumps 2026-11-08 -->
