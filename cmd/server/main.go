@@ -52,7 +52,7 @@ func main() {
 		if err != nil {
 			logger.Warn("redis unavailable, caching disabled", "error", err)
 		} else {
-			defer rc.Close()
+			defer func() { _ = rc.Close() }()
 			logger.Info("redis connected")
 		}
 	}
@@ -61,7 +61,7 @@ func main() {
 	var kp *queue.KafkaProducer
 	if kafkaBrokers != "" {
 		kp = queue.NewKafkaProducer(kafkaBrokers, kafkaTopic, logger)
-		defer kp.Close()
+		defer func() { _ = kp.Close() }()
 		logger.Info("kafka producer initialized", "brokers", kafkaBrokers, "topic", kafkaTopic)
 	}
 
