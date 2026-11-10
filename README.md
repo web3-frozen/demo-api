@@ -1,6 +1,6 @@
 # Demo Services
 
-Three Go services built from one image for the observable Task Manager demo:
+Three independently deployable Go services for the observable Task Manager demo:
 
 - `server`: task API and checkout entry point
 - `inventory`: checkout orchestration, PostgreSQL persistence, and Redis state
@@ -43,14 +43,16 @@ Three Go services built from one image for the observable Task Manager demo:
 | `PRICING_URL` | No | Pricing service URL for the inventory service |
 | `MARKET_DATA_URL` | No | External quote provider used by pricing |
 
-The inventory and pricing binaries use the same image:
+The services share one repository but publish separate images:
 
-```yaml
-command: ["/inventory"]
+```
+ghcr.io/web3-frozen/demo-api
+ghcr.io/web3-frozen/demo-inventory
+ghcr.io/web3-frozen/demo-pricing
 ```
 
-```yaml
-command: ["/pricing"]
-```
+Each image has its own SHA tag, GitOps image update, scan result, and rollback
+path. The inventory and pricing entrypoints are defined in
+`Dockerfile.inventory` and `Dockerfile.pricing`.
 
 <!-- ci canary: verify reusable workflow after action major bumps 2026-11-08 -->
