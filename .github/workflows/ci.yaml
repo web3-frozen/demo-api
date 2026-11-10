@@ -14,11 +14,31 @@ permissions:
   id-token: write
 
 jobs:
-  ci:
+  demo-api:
     uses: web3-frozen/homelab-apps/.github/workflows/ci-container.yaml@main
     with:
       app-name: demo-api
       image-name: demo-api
       workload-dir: workloads/demo-app
       go-version: "1.27.3"
+    secrets: inherit
+
+  demo-inventory:
+    uses: web3-frozen/homelab-apps/.github/workflows/ci-container.yaml@main
+    with:
+      app-name: demo-inventory
+      image-name: demo-inventory
+      workload-dir: workloads/demo-app
+      dockerfile: Dockerfile.inventory
+      go-version: "1.26"
+    secrets: inherit
+
+  demo-pricing:
+    uses: web3-frozen/homelab-apps/.github/workflows/ci-container.yaml@main
+    with:
+      app-name: demo-pricing
+      image-name: demo-pricing
+      workload-dir: workloads/demo-app
+      dockerfile: Dockerfile.pricing
+      go-version: "1.26"
     secrets: inherit
