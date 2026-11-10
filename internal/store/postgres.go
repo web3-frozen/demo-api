@@ -47,6 +47,16 @@ func (s *PostgresStore) Migrate(ctx context.Context) error {
 	);
 	CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
 	CREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority);
+	CREATE TABLE IF NOT EXISTS checkout_reservations (
+		id                 TEXT PRIMARY KEY,
+		priority           TEXT NOT NULL,
+		status             TEXT NOT NULL,
+		quote_amount_cents INTEGER NOT NULL,
+		quote_currency     TEXT NOT NULL,
+		quote_rate         DOUBLE PRECISION NOT NULL,
+		quote_provider     TEXT NOT NULL,
+		created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW()
+	);
 	`
 	_, err := s.pool.Exec(ctx, query)
 	return err
@@ -141,6 +151,33 @@ func (s *PostgresStore) Delete(ctx context.Context, id string) error {
 		return fmt.Errorf("task not found")
 	}
 	return nil
+}
+
+func (s *PostgresStore) CreateReservation(ctx context.Context, id, priority string, quote model.Quote) (*model.Reservation, error) {
+	reservation := model.Reservation{
+		ID:        id,
+		Priority:  priority,
+		Status:    "reserved",
+		Quote:     quote,
+		CreatedAt: time.Now().UTC(),
+	}
+	_, err := s.pool.Exec(ctx, `
+		INSERT INTO checkout_reservations
+			(id, priority, status, quote_amount_cents, quote_currency, quote_rate, quote_provider, created_at)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+		reservation.ID,
+		reservation.Priority,
+		reservation.Status,
+		reservation.Quote.AmountCents,
+		reservation.Quote.Currency,
+		reservation.Quote.Rate,
+		reservation.Quote.Provider,
+		reservation.CreatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &reservation, nil
 }
 
 func (s *PostgresStore) Close() {

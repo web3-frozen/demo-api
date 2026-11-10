@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/web3-frozen/demo-api/internal/cache"
+	"github.com/web3-frozen/demo-api/internal/downstream"
 	"github.com/web3-frozen/demo-api/internal/handler"
 	"github.com/web3-frozen/demo-api/internal/middleware"
 	"github.com/web3-frozen/demo-api/internal/queue"
@@ -25,6 +26,7 @@ func main() {
 	redisURL := os.Getenv("REDIS_URL")
 	kafkaBrokers := os.Getenv("KAFKA_BROKERS")
 	kafkaTopic := envOr("KAFKA_TOPIC", "task-events")
+	inventoryURL := os.Getenv("INVENTORY_URL")
 
 	if dbURL == "" {
 		logger.Error("DATABASE_URL is required")
@@ -65,8 +67,18 @@ func main() {
 		logger.Info("kafka producer initialized", "brokers", kafkaBrokers, "topic", kafkaTopic)
 	}
 
+	var inventoryClient *downstream.Client
+	if inventoryURL != "" {
+		inventoryClient, err = downstream.NewClient(inventoryURL)
+		if err != nil {
+			logger.Error("invalid inventory service URL", "error", err)
+			os.Exit(1)
+		}
+	}
+
 	// Routes
 	taskHandler := handler.NewTaskHandler(pg, rc, kp, logger)
+	checkoutHandler := handler.NewCheckoutHandler(inventoryClient, logger)
 	r := chi.NewRouter()
 	r.Use(middleware.Recover(logger))
 	r.Use(middleware.Logger(logger))
@@ -85,6 +97,7 @@ func main() {
 		_, _ = w.Write([]byte(`{"status":"ready"}`))
 	})
 	r.Mount("/api/tasks", taskHandler.Routes())
+	r.Post("/api/checkout", checkoutHandler.Create)
 
 	// Server with graceful shutdown
 	srv := &http.Server{
