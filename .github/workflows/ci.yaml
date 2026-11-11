@@ -20,7 +20,7 @@ jobs:
       app-name: demo-api
       image-name: demo-api
       workload-dir: workloads/demo-app
-      go-version: "1.27.3"
+      go-version: "1.27.4"
     secrets: inherit
 
   demo-inventory:
@@ -30,7 +30,7 @@ jobs:
       image-name: demo-inventory
       workload-dir: workloads/demo-app
       dockerfile: Dockerfile.inventory
-      go-version: "1.27.3"
+      go-version: "1.27.4"
     secrets: inherit
 
   demo-pricing:
@@ -40,5 +40,5 @@ jobs:
       image-name: demo-pricing
       workload-dir: workloads/demo-app
       dockerfile: Dockerfile.pricing
-      go-version: "1.27.3"
+      go-version: "1.27.4"
     secrets: inherit
